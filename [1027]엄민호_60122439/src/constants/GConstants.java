@@ -11,7 +11,7 @@ public class GConstants {
 	public final static String MAINFRAME_TITLE = "GraphicsEditor";
 	public final static String FILEMENU_TITLE = "File";
 	public final static String EDITMENU_TITLE = "Edit";
-	int x;
+	
 	public static enum EMainFrame {
 		X(100), Y(100), W(400), H(600);
 		private int value;
