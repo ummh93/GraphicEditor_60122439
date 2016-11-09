@@ -4,13 +4,14 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 
 import constants.GConstants.EDrawingType;
+import shapes.Anchors.EAnchors;
 
 public class GPolygon extends GShape {
 	private Polygon polygon;
 	public GPolygon() {
 		super(EDrawingType.NP);
 		this.polygon = new Polygon();
-
+		this.shape = this.polygon;
 	}
 	@Override
 	public void initDrawing(int x, int y, Graphics2D g2D) {
@@ -19,9 +20,10 @@ public class GPolygon extends GShape {
 	}
 	@Override
 	public void keepDrawing(int x, int y, Graphics2D g2D) {
-		g2D.draw(this.polygon);
-		polygon.addPoint(x, y);
-		g2D.draw(this.polygon);
+		g2D.drawPolyline(polygon.xpoints, polygon.ypoints, polygon.npoints);
+		this.polygon.xpoints[this.polygon.npoints-1] = x;
+		this.polygon.ypoints[this.polygon.npoints-1] = y;
+		g2D.drawPolyline(polygon.xpoints, polygon.ypoints, polygon.npoints);
 	}
 	public void continueDrawing(int x, int y, Graphics2D g2D) {
 		g2D.draw(this.polygon);
@@ -32,9 +34,13 @@ public class GPolygon extends GShape {
 	}
 	@Override
 	public void finishDrawing(int x, int y, Graphics2D g2D) {
+		g2D.drawPolyline(polygon.xpoints, polygon.ypoints, polygon.npoints);
+		draw(g2D);
 	}
 	@Override
 	public void draw(Graphics2D g2D) {
 		g2D.draw(this.polygon);
+		if(cursorState ==EAnchors.MM)
+			this.getAnchors().draw(g2D, this.polygon.getBounds());
 	}
 }

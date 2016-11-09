@@ -1,5 +1,6 @@
 package frames;
 
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
@@ -18,16 +19,19 @@ public class GDrawingPanel extends JPanel {
 
 	// object states
 	private enum EState {
-		idle, drawing
+		idleTP, idleNP,  drawingTP, drawingNP
 	};
-
+	private EState eState = EState.idleTP;
 	// components
 	private Vector<GShape> shapeList;
 	// associative attributes
 	private GShape selectedShape;
-
 	public void setSelectedShape(GShape selectedShape) {
 		this.selectedShape = selectedShape;
+		switch (this.selectedShape.geteDrawingType()) {
+		case TP: eState = EState.idleTP; break;
+		case NP: eState = EState.idleNP; break;
+	}
 	}
 
 	// working objects;
@@ -37,7 +41,6 @@ public class GDrawingPanel extends JPanel {
 		MouseEventHandler mouseEventHandler = new MouseEventHandler();
 		this.addMouseListener(mouseEventHandler);
 		this.addMouseMotionListener(mouseEventHandler);
-
 		this.shapeList = new Vector<GShape>();
 	}
 
@@ -75,9 +78,25 @@ public class GDrawingPanel extends JPanel {
 		this.currentShape.finishDrawing(x, y, g2D);
 		this.shapeList.add(this.currentShape);
 	}
+	
+	public GShape includes(int x, int y) {
+		for(GShape shape: this.shapeList) {
+			if(shape.contains(x, y) != null) {
+				return shape;
+			}
+		}
+		return null;
+	}
+	
+	private void changePointShape(GShape shape) {
+		if(shape != null){
+			setCursor(currentShape.getCursor(shape));
+			return;
+		}
+		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	}
 
 	class MouseEventHandler implements MouseInputListener, MouseMotionListener {
-		private EState eState = EState.idle;
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -89,57 +108,57 @@ public class GDrawingPanel extends JPanel {
 		}
 
 		private void mouse1Clicked(MouseEvent e) {
-			if (eState == EState.idle) {
-				if (selectedShape.geteDrawingType() == EDrawingType.NP) {
+			if (eState == EState.idleNP) {
 					initDrawing(e.getX(), e.getY());
-					eState = EState.drawing;
-					System.out.println("mouse1Clicked/idle");
-				}
-			} else if (eState == EState.drawing) {
+					eState = EState.drawingNP;
+			} else if (eState == EState.drawingNP) {
 				continueDrawing(e.getX(), e.getY());
-				System.out.println("mouse1Clicked/drawing");
 			}
 		}
 
 		private void mouse2Clicked(MouseEvent e) {
-			if (eState == EState.drawing) {
+			if (eState == EState.drawingNP) {
 				finishDrawing(e.getX(), e.getY());
-				eState = EState.idle;
-				System.out.println("mouse2Clicked/drawing");
+				eState = EState.idleNP;
 			}
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			if (eState == EState.idle && selectedShape.geteDrawingType() == EDrawingType.TP) {
-				initDrawing(e.getX(), e.getY());
-				eState = EState.drawing;
-				System.out.println("mousePressed/idle");
+			if (eState == EState.idleTP) {
+				currentShape = includes(e.getX(), e.getY());
+				if(currentShape != null){
+					currentShape.setSelected(true);
+				}else{	
+					eState = EState.drawingTP;
+					initDrawing(e.getX(), e.getY());
+				}
+				repaint();
 			}
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (eState == EState.drawing && selectedShape.geteDrawingType() == EDrawingType.TP) {
+			if (eState == EState.drawingTP && selectedShape.geteDrawingType() == EDrawingType.TP) {
 				finishDrawing(e.getX(), e.getY());
-				eState = EState.idle;
-				System.out.println("mouseReleased/drawing");
+				eState = EState.idleTP;
 			}
 		}
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			// if (eState == EState.drawing) {
-			// keepDrawing(e.getX(), e.getY());
-			// System.out.println("mouseMoved/drawing");
-			// }
+			if (eState == EState.drawingNP) {
+				keepDrawing(e.getX(), e.getY());
+			} else if (eState == EState.idleTP || eState == EState.idleNP) {
+				currentShape = includes(e.getX(), e.getY());
+				changePointShape(currentShape);
+			}
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (eState == EState.drawing && selectedShape.geteDrawingType() == EDrawingType.TP) {
+			if (eState == EState.drawingTP && selectedShape.geteDrawingType() == EDrawingType.TP) {
 				keepDrawing(e.getX(), e.getY());
-				System.out.println("mouseDragged/drawing");
 			}
 		}
 
