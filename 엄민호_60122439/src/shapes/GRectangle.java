@@ -1,5 +1,6 @@
 package shapes;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -11,20 +12,21 @@ public class GRectangle extends GShape {
 	public Rectangle rectangle;
 	
 	public GRectangle() {
-		super(EDrawingType.TP);
-		this.rectangle = new Rectangle(0, 0, 0, 0);
-		this.shape = this.rectangle;
+		super(EDrawingType.TP, new Rectangle(0, 0, 0, 0));
+		this.rectangle = (Rectangle)this.getShape();
 	}
 	@Override
 	public void initDrawing(int x, int y, Graphics2D g2D) {
 		this.rectangle.setLocation(x, y);
+		this.draw(g2D);	// shape에 있는 draw사용, 그리는 부분
 	}
 	@Override
 	public void keepDrawing(int x, int y, Graphics2D g2D) {
-		this.draw(g2D);
-		this.rectangle.width = x - this.rectangle.x;
-		this.rectangle.height = y - this.rectangle.y;
-		this.draw(g2D);
+		// 그린걸 지우는 부분
+		this.draw(g2D); 
+		this.rectangle.setSize(new Dimension((x - this.rectangle.x), (y - this.rectangle.y)));
+		// 다시 그리는 부분
+		this.draw(g2D);	 
 	}
 	public void continueDrawing(int x, int y, Graphics2D g2D) {
 	}

@@ -52,14 +52,24 @@ public class GDrawingPanel extends JPanel {
 			shape.draw((Graphics2D) g);
 		}
 	}
-
+	//	어떤 도형이 선택됬는지 모르기 때문에 모든 도형을 false로 했다.
+	public void resetSelected() {
+		Graphics2D g2D = (Graphics2D)this.getGraphics();
+		for (GShape shape : this.shapeList){
+			shape.setSelected(false, g2D);
+		}
+		this.repaint();
+		this.setOpaque(false);
+	}
+	
 	private void initDrawing(int x, int y) {
+		this.resetSelected();
 		this.currentShape = this.selectedShape.clone();
 		Graphics2D g2D = (Graphics2D) this.getGraphics();
 		g2D.setXORMode(this.getBackground());
 		this.currentShape.initDrawing(x, y, g2D);
 	}
-
+	
 	private void keepDrawing(int x, int y) {
 		Graphics2D g2D = (Graphics2D) this.getGraphics();
 		g2D.setXORMode(this.getBackground());
@@ -75,6 +85,7 @@ public class GDrawingPanel extends JPanel {
 	private void finishDrawing(int x, int y) {
 		Graphics2D g2D = (Graphics2D) this.getGraphics();
 		g2D.setXORMode(this.getBackground());
+		this.currentShape.setSelected(true, g2D);
 		this.currentShape.finishDrawing(x, y, g2D);
 		this.shapeList.add(this.currentShape);
 	}
@@ -88,15 +99,33 @@ public class GDrawingPanel extends JPanel {
 		return null;
 	}
 	
-	private void changePointShape(GShape shape) {
+	private void changePointShape(int x, int y) {
+		for (GShape shape: this.shapeList) {
+			if (shape.contains(x, y) != null) {		// 마우스 객체에 올리면 손가락 모양으로 바뀜
+				Cursor cursor = Cursor.getDefaultCursor();
+			    //change cursor appearance to HAND_CURSOR when the mouse pointed on images
+			    cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR); 
+			    setCursor(cursor);
+			} else {		// 마우스 떼면 다시 원래 화살표 모양으로 돌아감
+				Cursor cursor = Cursor.getDefaultCursor();
+			    //change cursor appearance to HAND_CURSOR when the mouse pointed on images
+			    cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR); 
+			    setCursor(cursor);
+			}
+		}
+}
+	
+	/*private void changePointShape(GShape shape) {
 		if(shape != null){
 			setCursor(currentShape.getCursor(shape));
 			return;
 		}
 		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-	}
+	}*/
 
 	class MouseEventHandler implements MouseInputListener, MouseMotionListener {
+
+		private Graphics2D g2D;
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -128,7 +157,7 @@ public class GDrawingPanel extends JPanel {
 			if (eState == EState.idleTP) {
 				currentShape = includes(e.getX(), e.getY());
 				if(currentShape != null){
-					currentShape.setSelected(true);
+					currentShape.setSelected(true, g2D);
 				}else{	
 					eState = EState.drawingTP;
 					initDrawing(e.getX(), e.getY());
@@ -151,7 +180,7 @@ public class GDrawingPanel extends JPanel {
 				keepDrawing(e.getX(), e.getY());
 			} else if (eState == EState.idleTP || eState == EState.idleNP) {
 				currentShape = includes(e.getX(), e.getY());
-				changePointShape(currentShape);
+				changePointShape(e.getX(), e.getY());
 			}
 		}
 

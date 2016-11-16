@@ -53,7 +53,7 @@ public class Anchors extends Vector<Ellipse2D.Double>{
 					break;
 				case RR:
 					this.get(i).x = R.x + R.width / 2 - ANCHORWIDTH / 2;
-					this.get(i).y = R.y + R.height / 4 - ANCHORWIDTH / 2;
+					this.get(i).y = R.y - R.height / 4 - ANCHORWIDTH / 2;
 					break;
 			default:
 				break;
@@ -69,6 +69,11 @@ public class Anchors extends Vector<Ellipse2D.Double>{
 	}
 	
 	public EAnchors contains(int x, int y) {
+		for (int i = 0; i < EAnchors.values().length-1; i++) {
+			if(this.get(i).contains(x, y)){
+				return EAnchors.values()[i];
+			}	
+		}
 		return null;
 	}
 }

@@ -11,9 +11,8 @@ public class GEllipse extends GShape {
 	private Ellipse2D.Double ellipse;
 
 	public GEllipse() {
-		super(EDrawingType.TP);
-		this.ellipse = new Ellipse2D.Double(0, 0, 0, 0);
-		this.shape = this.ellipse;
+		super(EDrawingType.TP, new Ellipse2D.Double(0, 0, 0, 0));
+		this.ellipse = (Ellipse2D.Double)getShape();
 	}
 
 	@Override
