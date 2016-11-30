@@ -2,18 +2,23 @@ package shapes;
 
 import java.awt.Cursor;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
+import constants.GConstants;
+import constants.GConstants.EAnchors;
 import constants.GConstants.EDrawingType;
-import shapes.Anchors.EAnchors;
 
 abstract public class GShape {
 	private EDrawingType eDrawingType;
-
 	private Shape shape;
 	private Anchors anchors;	
+	// working variables
+	private Point p0, p1;	// p0는 원점 p1은 그 전점
 	protected boolean selected;
+	private EAnchors currentEAnchor;
+	
 	public EDrawingType geteDrawingType() { return eDrawingType; }
 	public void seteDrawingType(EDrawingType eDrawingType) { this.eDrawingType = eDrawingType; }
 	public boolean isSelected(){ return selected; }
@@ -22,7 +27,14 @@ abstract public class GShape {
 	public Shape getShape() { return this.shape; }
 	public Anchors getAnchors() {return anchors;}
 	public void setAnchors(Anchors anchors) {this.anchors = anchors;}
-
+	
+	public Point getP0() {return p0;}
+	public void setP0(int x, int y) {this.p0.x = x; this.p0.y = y;}
+	public Point getP1() {return p1;}
+	public void setP1(int x, int y) {this.p1.x = x; this.p1.y = y;}
+	
+	public EAnchors getCurrentEAnchor() {return currentEAnchor;}
+	
 	public Rectangle getBounds() {
 		return this.shape.getBounds();
 	}
@@ -46,6 +58,8 @@ abstract public class GShape {
 		this.selected = false;
 		this.shape = shape;
 		this.anchors = new Anchors();
+		this.p0 = new Point(0, 0);
+		this.p1 = new Point(0, 0);
 	}
 	
 	public void draw(Graphics2D g2D){
@@ -65,24 +79,31 @@ abstract public class GShape {
 		return null;
 	}
 	
-	public GShape contains(int x, int y){
-		if(selected){
-			cursorState = anchors.contains(x, y);
-			if(cursorState != null){
-				return this;
-			}
+	public GConstants.EAnchors contains(int x, int y) {
+		this.currentEAnchor = null;
+		if (this.selected) {
+			this.currentEAnchor = this.anchors.contains(x, y);
+			if (this.currentEAnchor != null)
+				return this.currentEAnchor;
 		}
-		if(shape.intersects(x, y, 10, 10)){
-			cursorState = EAnchors.MM;
-			return this;
+		if (this.shape.getBounds().contains(x, y)) {
+			
+			this.currentEAnchor = EAnchors.MM;
 		}
-		return null;
+		return this.currentEAnchor;
 	}
 
 	abstract public void initDrawing(int x, int y, Graphics2D g2D);
 	abstract public void keepDrawing(int x, int y, Graphics2D g2D);
 	abstract public void continueDrawing(int x, int y, Graphics2D g2D);
 	abstract public void finishDrawing(int x, int y, Graphics2D g2D);
+	
+	abstract public void initTransforming(int x, int y, Graphics2D g2d);
+	abstract public void keepTransforming(int x, int y, Graphics2D g2d);
+	abstract public void finishTransforming(int x, int y, Graphics2D g2d);
 
+	abstract public void initResizing(int x, int y, Graphics2D g2d);
+	abstract public void keepResizing(int x, int y, Graphics2D g2d);
+	abstract public void finishResizing(int x, int y, Graphics2D g2d);
 	
 }

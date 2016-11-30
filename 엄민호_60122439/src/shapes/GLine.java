@@ -32,4 +32,86 @@ public class GLine extends GShape {
 	public void draw(Graphics2D g2D) {
 		g2D.draw(line);
 	}
+	@Override
+	public void initTransforming(int x, int y, Graphics2D g2d) {
+		this.setP1(x, y);
+		this.draw(g2d);		
+	}
+	@Override
+	public void keepTransforming(int x, int y, Graphics2D g2d) {
+		this.draw(g2d);
+		this.line.setLine(this.line.getX1()+x - this.getP1().x, this.line.getY1()+y - this.getP1().y, this.line.getX2()+ x - this.getP1().x, this.line.getY2()+y - this.getP1().y);
+		this.draw(g2d);
+		this.setP1(x, y);		
+	}
+	@Override
+	public void finishTransforming(int x, int y, Graphics2D g2d) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void initResizing(int x, int y, Graphics2D g2d) {
+		this.setP1(x, y);
+		this.draw(g2d);
+		switch (this.getCurrentEAnchor()) {
+		case NN:
+			break;
+		case NE:
+			break;
+		case NW:
+			break;
+		case SS:
+			
+			break;
+		case SE:
+			break;
+		case SW:
+			break;
+		case EE:
+			break;
+		case WW:
+			break;
+		default:
+			break;
+		}		
+	}
+	@Override
+	public void keepResizing(int x, int y, Graphics2D g2d) {
+		this.draw(g2d);
+		switch (this.getCurrentEAnchor()) {
+		case NN:
+			this.line.setLine(this.line.getX1(),y,this.line.getX2(),this.line.getY2());
+			break;
+		case NE:
+			this.line.setLine(this.line.getX1(),y,this.line.getX2(),this.line.getY2());
+			break;
+		case NW:
+			this.line.setLine(x,y,this.line.getX2(),this.line.getY2());
+			break;
+		case SS:
+			this.line.setLine(this.line.getX1(),this.line.getY1(),this.line.getX2(),y);
+			break;
+		case SE:
+			this.line.setLine(this.line.getX1(),this.line.getY1(),x,y);
+			break;
+		case SW:
+			this.line.setLine(this.line.getX1(),this.line.getY1(),this.line.getX2(),y);
+			break;
+		case EE:
+			this.line.setLine(this.line.getX1(),this.line.getY1(),x,this.line.getY2());
+			break;
+		case WW:
+			this.line.setLine(x,this.line.getY1(),this.line.getX2(),this.line.getY2());
+			break;
+		default:
+			break;
+		}
+		this.draw(g2d);
+		this.setP1(x, y);		
+	}
+	@Override
+	public void finishResizing(int x, int y, Graphics2D g2d) {
+		// TODO Auto-generated method stub
+		
+	}
 }

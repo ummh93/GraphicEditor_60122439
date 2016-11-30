@@ -10,6 +10,8 @@ import java.util.Vector;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
+import constants.GConstants;
+import constants.GConstants.EAnchors;
 import constants.GConstants.EDrawingType;
 import shapes.GShape;
 
@@ -19,9 +21,11 @@ public class GDrawingPanel extends JPanel {
 
 	// object states
 	private enum EState {
-		idleTP, idleNP,  drawingTP, drawingNP
+		idleTP, idleNP,  drawingTP, drawingNP, TPtransforming
 	};
+	private ENPtrans eNPtrans = ENPtrans.not;
 	private EState eState = EState.idleTP;
+	private enum ENPtrans {NPtransforming, not};
 	// components
 	private Vector<GShape> shapeList;
 	// associative attributes
@@ -48,6 +52,7 @@ public class GDrawingPanel extends JPanel {
 	}
 
 	public void paint(Graphics g) {
+		super.paint(g);
 		for (GShape shape : this.shapeList) {
 			shape.draw((Graphics2D) g);
 		}
@@ -99,6 +104,126 @@ public class GDrawingPanel extends JPanel {
 		return null;
 	}
 	
+	private void initTransforming(int x, int y) {
+		this.resetSelected();
+		Graphics2D g2D = (Graphics2D)this.getGraphics();
+		g2D.setXORMode(this.getBackground());
+		switch (this.currentShape.getCurrentEAnchor()) {
+		case NN:
+			break;
+		case NE:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case NW:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case SS:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case SE:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case SW:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case EE:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case WW:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case RR:
+			this.currentShape.initResizing(x, y, g2D);
+			break;
+		case MM:
+			this.currentShape.initTransforming(x, y, g2D);
+			break;
+		}
+	}
+	private void keepTransforming(int x, int y) {
+		Graphics2D g2D = (Graphics2D)this.getGraphics();
+		g2D.setXORMode(this.getBackground());
+		
+		switch (this.currentShape.getCurrentEAnchor()) {
+		case NN:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case NE:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case NW:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case SS:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case SE:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case SW:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case EE:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case WW:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case RR:
+			this.currentShape.keepResizing(x, y, g2D);
+			break;
+		case MM:
+			this.currentShape.keepTransforming(x, y, g2D);
+			break;
+		}
+	}
+	private void finishTransforming(int x, int y) {
+		Graphics2D g2D = (Graphics2D)this.getGraphics();
+		g2D.setXORMode(this.getBackground());
+		switch (this.currentShape.getCurrentEAnchor()) {
+		case NN:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case NE:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case NW:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case SS:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case SE:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case SW:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case EE:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case WW:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case RR:
+			this.currentShape.finishResizing(x, y, g2D);
+			break;
+		case MM:
+			this.currentShape.finishTransforming(x, y, g2D);
+			break;
+		}
+		this.currentShape.setSelected(true, g2D);
+		this.repaint();
+	}
+	
+	private GShape onShape(int x, int y) {
+		for (GShape shape: this.shapeList) {
+			GConstants.EAnchors eAnchor = shape.contains(x, y);
+			if (eAnchor != null)
+				return shape;
+		}
+		return null;
+	}	
 	private void changePointShape(int x, int y) {
 		for (GShape shape: this.shapeList) {
 			if (shape.contains(x, y) != null) {		// 마우스 객체에 올리면 손가락 모양으로 바뀜
@@ -113,20 +238,49 @@ public class GDrawingPanel extends JPanel {
 			    setCursor(cursor);
 			}
 		}
-}
-	
-	/*private void changePointShape(GShape shape) {
-		if(shape != null){
-			setCursor(currentShape.getCursor(shape));
-			return;
+	}
+	private void changeCursor(int x, int y) {
+		for (GShape shape: this.shapeList) {
+			EAnchors eAnchor = shape.contains(x, y);
+			if (eAnchor != null) {
+				switch (eAnchor) {
+				case NN:
+					this.setCursor(new Cursor(Cursor.N_RESIZE_CURSOR));
+					return;
+				case NE:
+					this.setCursor(new Cursor(Cursor.NE_RESIZE_CURSOR));
+					return;
+				case NW:
+					this.setCursor(new Cursor(Cursor.NW_RESIZE_CURSOR));
+					return;
+				case SS:
+					this.setCursor(new Cursor(Cursor.S_RESIZE_CURSOR));
+					return;
+				case SE:
+					this.setCursor(new Cursor(Cursor.SE_RESIZE_CURSOR));
+					return;
+				case SW:
+					this.setCursor(new Cursor(Cursor.SW_RESIZE_CURSOR));
+					return;
+				case EE:
+					this.setCursor(new Cursor(Cursor.E_RESIZE_CURSOR));
+					return;
+				case WW:
+					this.setCursor(new Cursor(Cursor.W_RESIZE_CURSOR));
+					return;
+				case RR:
+					this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+					return;
+				case MM:
+					this.setCursor(new Cursor(Cursor.MOVE_CURSOR));
+					return;
+				}
+			}
 		}
-		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-	}*/
+		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	}
 
 	class MouseEventHandler implements MouseInputListener, MouseMotionListener {
-
-		private Graphics2D g2D;
-
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() == 1) {
@@ -155,14 +309,17 @@ public class GDrawingPanel extends JPanel {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			if (eState == EState.idleTP) {
-				currentShape = includes(e.getX(), e.getY());
-				if(currentShape != null){
-					currentShape.setSelected(true, g2D);
-				}else{	
-					eState = EState.drawingTP;
+				
+				currentShape = onShape(e.getX(), e.getY());
+				if (currentShape == null) {
 					initDrawing(e.getX(), e.getY());
+					eState = EState.drawingTP;
+				} else {
+					initTransforming(e.getX(), e.getY());
+					eState = EState.TPtransforming;
 				}
-				repaint();
+			} else if(eState == EState.idleNP && eNPtrans == ENPtrans.NPtransforming){
+				initTransforming(e.getX(), e.getY());
 			}
 		}
 
@@ -171,6 +328,10 @@ public class GDrawingPanel extends JPanel {
 			if (eState == EState.drawingTP && selectedShape.geteDrawingType() == EDrawingType.TP) {
 				finishDrawing(e.getX(), e.getY());
 				eState = EState.idleTP;
+			} else if (eState == EState.TPtransforming || eNPtrans == ENPtrans.NPtransforming) {
+				// 이상하대 나중에 고친대 idle은 원래 하나여야 하는데 두개로 나뉘어져 있어서 그렇대
+				eState = EState.idleTP;
+				eNPtrans = ENPtrans.not;
 			}
 		}
 
@@ -188,7 +349,14 @@ public class GDrawingPanel extends JPanel {
 		public void mouseDragged(MouseEvent e) {
 			if (eState == EState.drawingTP && selectedShape.geteDrawingType() == EDrawingType.TP) {
 				keepDrawing(e.getX(), e.getY());
+			} else if (eState == EState.TPtransforming || eNPtrans == ENPtrans.NPtransforming){
+				keepTransforming(e.getX(), e.getY());
 			}
+		}
+
+		private void keepTransforming(int x, int y) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		@Override

@@ -3,8 +3,8 @@ package shapes;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 
+import constants.GConstants.EAnchors;
 import constants.GConstants.EDrawingType;
-import shapes.Anchors.EAnchors;
 
 public class GPolygon extends GShape {
 	private Polygon polygon;
@@ -42,5 +42,37 @@ public class GPolygon extends GShape {
 		g2D.draw(this.polygon);
 		if(cursorState ==EAnchors.MM)
 			this.getAnchors().draw(g2D, this.polygon.getBounds());
+	}
+	@Override
+	public void initTransforming(int x, int y, Graphics2D g2d) {
+		this.setP1(x, y);
+		this.draw(g2d);		
+	}
+	@Override
+	public void keepTransforming(int x, int y, Graphics2D g2d) {
+		this.draw(g2d);
+		this.polygon.translate(x-this.getP1().x,y-this.getP1().y);
+		this.draw(g2d);
+		this.setP1(x, y);		
+	}
+	@Override
+	public void finishTransforming(int x, int y, Graphics2D g2d) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void initResizing(int x, int y, Graphics2D g2d) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void keepResizing(int x, int y, Graphics2D g2d) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void finishResizing(int x, int y, Graphics2D g2d) {
+		// TODO Auto-generated method stub
+		
 	}
 }
